@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>File: CHANGELOG</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href=".././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+  <div id="fileHeader">
+    <h1>CHANGELOG</h1>
+    <table class="header-table">
+    <tr class="top-aligned-row">
+      <td><strong>Path:</strong></td>
+      <td>CHANGELOG
+      </td>
+    </tr>
+    <tr class="top-aligned-row">
+      <td><strong>Last Update:</strong></td>
+      <td>Mon Nov 05 10:22:13 -0500 2007</td>
+    </tr>
+    </table>
+  </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <h1><a href="../classes/Rools.html">Rools</a> CHANGELOG</h1>
+<h2><a href="../classes/Rools.html">Rools</a> - 0.4 released 2007/11/05</h2>
+<pre>
+        * facts can include a range (Grant Mcinnes idea)
+        * Fixed examples on website
+</pre>
+<h2><a href="../classes/Rools.html">Rools</a> - 0.3</h2>
+<pre>
+        * facts can now have a defined namespace
+    * fixed csv_test
+    * added load_xml_rules_as_string and load_rb_rules_as_string
+        * 100% test coverage
+        * Applied doc patch from John Mettraux
+</pre>
+<h2><a href="../classes/Rools.html">Rools</a> - 0.2 released 2007/05/22</h2>
+<pre>
+        * specifications have been created using RSpec
+        * fix bug #10985 regarding the support of rule extension
+        * fixed assertion of a fact within a rule
+</pre>
+<h2><a href="../classes/Rools.html">Rools</a> - 0.1.6 released 2007/05/20</h2>
+<pre>
+        * todo #1319 use Rails conventions for rules parameters.
+                WARNING: no more free for all.
+                The variable used in the rule has to match the define parameter (a Class type)
+                therefore the variable has to be a lowercase singulr version of the parameter.  This is
+                required now to support multiple facts
+        * todo #1318 expand assert to accept more than one object.  You can also use a fact notation
+                to add facts and call evaluate
+        * todo #1283 rule priority completed
+        * todo #1286 added facts that can be asserted
+        * todo #1288 decision tables have been completed
+</pre>
+<h2><a href="../classes/Rools.html">Rools</a> - 0.1.5 released 2007/04/27</h2>
+<pre>
+        * todo #1282 Added unit tests for baseline
+        * todo #1283 Added rule priority (not completed)
+        * todo #1284 Added XML rule format
+        * todo #1286 Added facts support
+        * todo #1287 Added decision table capability
+        * todo #1288 Added logging capability to trace engine
+        * todo #1292 Major Rakefile upgrade for site auto-generation (Thanks to John Metttraux)
+</pre>
+<h2><a href="../classes/Rools.html">Rools</a> - 0.1.4 released 2005/12/15</h2>
+<pre>
+        * Removed &quot;examples&quot; folder since my RDoc kung-fu cannot be denied and the examples were redundant
+        * Added Rools::open to rools.rb
+        * Added pscp.rb to create SshPublishers on Win32 with PuttySCP
+        * Added Rools::RuleSet#assert return codes, :pass and :fail
+        * Added stop and fail methods to RuleSet, Rules, and DefaultParameterProc
+</pre>
+<h2><a href="../classes/Rools.html">Rools</a> - 0.1.3</h2>
+<pre>
+        Finished most documentation
+        Tweaked the rakefile
+</pre>
+<h2><a href="../classes/Rools.html">Rools</a> - 0.1.2</h2>
+<pre>
+        Added RAKEFILE, README, CHANGELOG
+</pre>
+<h2><a href="../classes/Rools.html">Rools</a> - 0.1.1</h2>
+<pre>
+        Added RuleConsequenceError
+</pre>
+
+    </div>
+
+
+   </div>
+
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

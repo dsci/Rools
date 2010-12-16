@@ -1,0 +1,12 @@
+<rule-set name='hello'>
+	<facts name='Chars'>['a','b','c']</facts>
+	<rule name='Hello'>
+	  <parameter>String</parameter>
+	  <consequence>puts "Hello, Rools!"</consequence>
+	</rule>
+	<rule name='Fixnum'>
+	  <parameter>Fixnum</parameter>parameter>
+	  <condition>fixnum > 0</condition>
+	  <consequence>puts "Hello, #{fixnum}"</consequence>
+	</rule>
+</rule-set>

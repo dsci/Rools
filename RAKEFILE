@@ -1,0 +1,224 @@
+require 'rubygems'
+require 'rake'
+require 'rake/clean'
+require 'rake/packagetask'
+require 'rake/gempackagetask'
+require 'rake/rdoctask'
+require 'rake/testtask'
+
+require 'rake/contrib/rubyforgepublisher'
+
+#require 'pscp'
+require 'rote'
+require 'rote/filters'
+require 'rote/filters/redcloth'
+require 'rote/filters/tidy'
+require 'rote/format/html'
+require 'rote/extratasks'
+
+require 'spec/rake/spectask'
+require 'spec/rake/verify_rcov'
+
+include Rote
+
+load 'lib/rools/version.rb'
+
+PACKAGE_VERSION   = Rools::ROOLS_VERSION
+CURRENT_COVERAGE  = Rools::ROOLS_COVERAGE
+
+CLEAN.include("pkg", "html", "rdoc", "engine.log")
+
+PACKAGE_FILES = FileList[
+  'README',
+  'CHANGELOG',
+  'RAKEFILE',
+  'lib/rools.rb',
+  'lib/**/*.rb'
+].to_a
+
+PROJECT = 'rools'
+
+ENV['RUBYFORGE_USER']    = "cappelaere@rubyforge.org"
+ENV['RUBYFORGE_PROJECT'] = "/var/www/gforge-projects/#{PROJECT}"
+
+desc 'Release Files'
+task :default => [:rcov, :rdoc, :doc, :gem, :package]
+
+# Generate the RDoc documentation
+rd = Rake::RDocTask.new do |rdoc|
+  rdoc.rdoc_dir = 'html/doc'
+  rdoc.title = 'Rools -- A Pure Ruby Rules Engine'
+  rdoc.rdoc_files.include(PACKAGE_FILES)
+  rdoc.options << '-N'
+  rdoc.options << '-S'
+end
+
+# Create a task to build the static docs (html)
+ws = Rote::DocTask.new(:doc) do |site| 
+    site.output_dir = 'html'
+    site.layout_dir = 'doc/layouts'
+    site.pages.dir  = 'doc/pages'
+    site.pages.include('**/*')  
+  
+    site.ext_mapping(/thtml|textile/, 'html') do |page|
+        page.extend Format::HTML
+        page.page_filter Filters::RedCloth.new
+        page.page_filter Filters::Syntax.new
+    end
+
+    site.res.dir = 'doc/res'
+    site.res.include('**/*.png')
+    site.res.include('**/*.gif')
+    site.res.include('**/*.jpg')
+    site.res.include('**/*.css')
+    site.res.include('**/examples/*')
+end
+
+# Add rdoc deps to doc task
+task :doc => [:rdoc]
+
+gem_spec = Gem::Specification.new do |s|
+  s.platform = Gem::Platform::RUBY
+  s.name = PROJECT
+  s.summary = "A Rules Engine written in Ruby"
+  s.description = "Can be used for program-flow, ideally suited to processing applications"
+  s.version = PACKAGE_VERSION
+  
+  s.authors = 'Sam Smoot', 'Scott Bauer', 'Pat Cappelaere'
+  s.email = 'ssmoot@gmail.com; bauer.mail@gmail.com cappelaere@gmail.com'
+  s.rubyforge_project = PROJECT
+  s.homepage = 'http://rools.rubyforge.org/'
+  
+  s.files = PACKAGE_FILES
+  
+  s.require_path = 'lib'
+  s.requirements << 'none'
+  s.autorequire = 'rools'
+  
+  s.has_rdoc = true
+  s.rdoc_options << '--line-numbers' << '--inline-source' << '--main' << 'README'
+  s.extra_rdoc_files = rd.rdoc_files.reject { |fn| fn =~ /\.rb$/ }.to_a
+end
+
+#
+# Create a task for creating a ruby gem
+#
+Rake::GemPackageTask.new(gem_spec) do |p|
+  p.gem_spec = gem_spec
+  p.need_tar = true
+  p.need_zip = true
+end
+
+#
+# Packaging the source
+#
+Rake::PackageTask.new("rools", Rools::ROOLS_VERSION) do |pkg|
+    pkg.need_zip = true
+    pkg.package_files = FileList[
+        "RAKEFILE",
+        "CHANGELOG",
+        "README",
+        "*.txt",
+        "doc/**/*",
+        "examples/**/*",
+        "lib/**/*",
+        "test/**/*",
+        "specs/**/*",
+        "html/**/*"
+    ].to_a
+    pkg.package_files.delete("rc.txt")
+    pkg.package_files.delete("MISC.txt")
+    class << pkg
+        def package_name
+            "#{@name}-#{@version}-src"
+        end
+    end
+end
+
+desc "Publish RDOC to RubyForge"
+task :rubyforge => [:rdoc, :gem] do
+  Rake::SshDirPublisher.new(ENV['RUBYFORGE_USER'], ENV['RUBYFORGE_PROJECT'], 'html').upload
+  #Rake::SshFilePublisher.new(ENV['RUBYFORGE_USER'], ENV['RUBYFORGE_PROJECT'], 'pkg', "#{PROJECT}-#{PACKAGE_VERSION}.gem").upload  
+end
+
+# Builds the website and uploads it to Rubyforge.org
+task :upload_website => [:doc] do
+    sh """
+rsync -azv -e ssh \
+--exclude='.svn' --delete-excluded \
+html/ \
+cappelaere@rubyforge.org:/var/www/gforge-projects/rools \
+    """
+    sh """
+rsync -azv -e ssh \
+--exclude='.svn' --delete-excluded \
+doc/res/defs \
+cappelaere@rubyforge.org:/var/www/gforge-projects/rools \
+    """
+    sh """
+rsync -azv -e ssh \
+--exclude='.svn' --delete-excluded \
+examples \
+cappelaere@rubyforge.org:/var/www/gforge-projects/rools \
+    """
+end
+
+task :upload_html do
+    sh """
+rsync -azv -e ssh \
+--exclude='.svn' \
+html \
+cappelaere@rubyforge.org:/var/www/gforge-projects/rools \
+    """
+end
+
+#
+# TEST TASKS
+#
+class RoolsTestTask < Rake::TestTask
+    def initialize (name=nil)
+        File.delete "engine.log" if File.exist? "engine.log"
+        super(name)
+    end
+end
+
+# Create a task for handling Unit Tests
+RoolsTestTask.new(:test) do |t|
+    t.libs << "test"
+    t.test_files = FileList['test/rake_test.rb']
+    t.verbose = true
+end
+
+# Check Rools specifications using rspec
+Spec::Rake::SpecTask.new('specs') do |t|
+  t.spec_opts = ['--format', 'specdoc']
+  t.spec_files = FileList['spec/**/*.rb']
+end
+
+Spec::Rake::SpecTask.new('spec_coverage') do |t|
+  t.spec_opts = ['--format', 'specdoc']
+  t.spec_files = FileList['spec/**/*.rb']
+  t.rcov = true
+  t.rcov_dir = './html/output/coverage'
+  t.rcov_opts = ['--exclude', 'spec']
+end
+
+desc "Run all specs and store html output in html/output/report.html"
+Spec::Rake::SpecTask.new('spec_html') do |t|
+  t.spec_files = FileList['spec/**/*_spec.rb']
+  t.spec_opts = ['--format html:html/output/rspec_report.html','--backtrace']
+end
+
+RCov::VerifyTask.new(:verify_rcov => :spec_coverage) do |t|
+  t.threshold = CURRENT_COVERAGE # Make sure you have rcov 0.7 or higher!
+  t.index_html = './html/output/coverage/index.html'
+end
+
+task :rcov => [:verify_rcov, :spec_html]
+
+namespace :spec do
+  task :autotest do
+    require './spec/rspec_autotest'
+    RspecAutotest.run
+  end
+end
