@@ -107,6 +107,10 @@ Rake::GemPackageTask.new(gem_spec) do |p|
   p.gem_spec = gem_spec
   p.need_tar = true
   p.need_zip = true
+	
+	File.open("rools_#{PACKAGE_VERSION}.gemspec", "w") do |f|
+	    f.write(gem_spec.to_ruby)
+	end
 end
 
 #
